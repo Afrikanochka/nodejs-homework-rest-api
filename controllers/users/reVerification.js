@@ -1,7 +1,7 @@
 const { sendResponse, sendEmail } = require('../../helpers')
 const { User } = require('../../schemas/user')
 
-const localhost = 3000
+const { PORT } = process.env
 
 const reVerification = async (req, res) => {
   const { email } = req.body
@@ -35,7 +35,7 @@ const reVerification = async (req, res) => {
   const data = {
     to: email,
     subject: 'Email verification',
-    html: `<a href="http://localhost:${localhost}/api/users/verify/${verifyToken}" 
+    html: `<a href="http://localhost:${PORT}/api/users/verify/${verifyToken}" 
     target="_blank">Verificate email</a>`,
   }
 
