@@ -1,6 +1,8 @@
 const { User } = require('../../schemas/user')
-const { sendResponse } = require('../../helpers')
+const { sendResponse, sendEmail } = require('../../helpers')
 const gravatar = require('gravatar')
+
+const { PORT } = process.env
 
 const register = async (req, res) => {
   const { email, password } = req.body
@@ -20,8 +22,17 @@ const register = async (req, res) => {
   const newUser = new User({ email })
 
   newUser.setPassword(password)
+  newUser.setVerifyToken()
   newUser.setDefaultAvatar(gravatar.url(newUser.email, { s: '200' }))
-  await newUser.save()
+  const { verifyToken } = await newUser.save()
+
+  const data = {
+    to: email,
+    subject: 'Email verification',
+    html: `<a href="http://localhost:${PORT}/api/users/verify/${verifyToken}" 
+    target="_blank">Verificate email</a>`
+  }
+  await sendEmail(data)
 
   sendResponse({
     res,
@@ -31,6 +42,7 @@ const register = async (req, res) => {
       message: 'Registration success',
       email: newUser.email,
       subscription: newUser.subscription,
+      verifyToken: verifyToken,
     },
   })
 }

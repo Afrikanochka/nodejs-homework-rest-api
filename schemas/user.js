@@ -2,6 +2,7 @@ const { Schema, model } = require('mongoose')
 const Joi = require('joi')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { v4 } = require('uuid')
 
 const userSchema = Schema({
   password: {
@@ -23,6 +24,14 @@ const userSchema = Schema({
   token: {
     type: String,
     default: null,
+  },
+  verify: {
+    type: Boolean,
+    default: false,
+  },
+  verifyToken: {
+    type: String,
+    required: [true, 'Verify token is required'],
   },
 }, { versionKey: false, timestamps: true })
 
@@ -57,7 +66,13 @@ userSchema.methods.createToken = function () {
 
   return jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' })
 }
+const joiUserVerificationRequestSchema = Joi.object({
+  email: Joi.string().required()
+})
+userSchema.methods.setVerifyToken = function () {
+  this.verifyToken = v4()
+}
 
 const User = model('user', userSchema)
 
-module.exports = { User, joiUserSchema, joiUserSubscriptionUpdateSchema }
+module.exports = { User, joiUserSchema, joiUserSubscriptionUpdateSchema, joiUserVerificationRequestSchema }
