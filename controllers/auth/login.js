@@ -6,12 +6,12 @@ const login = async (req, res) => {
 
   const user = await User.findOne({ email })
 
-  if (!user) {
+  if (!user || !user.isVerified) {
     sendResponse({
       res,
       status: 401,
       statusMessage: 'Unauthorized',
-      data: { message: 'Email is wrong' },
+      data: { message: 'Email is wrong or user`s email is not verified' },
     })
     return
   }
